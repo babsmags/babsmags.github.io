@@ -125,7 +125,7 @@ function kardashAjax() {
 function yummlyAjax() {
   $.ajax({
     type: "GET",
-    url: "http://api.yummly.com/v1/api/recipes?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07&allowedCourse[]=course^course-Desserts",
+    url: "https://api.yummly.com/v1/api/recipes?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07&allowedCourse[]=course^course-Desserts",
     // url: "http://api.yummly.com/v1/api/recipe/2-Ingredient-Weight-Watchers-Pancakes-Zero-Points-Freestyle-2645921?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07",
     // url: "http://api.yummly.com/v1/api/recipe/Sugared-pecans-_gifts-from-the-kitchen_-351475?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07",
 
@@ -139,7 +139,7 @@ function yummlyAjax() {
       for (var i = 0; i < recipeArr.length; i++) {
         $.ajax({
           type: "GET",
-          url: "http://api.yummly.com/v1/api/recipe/" + recipeArr[i] + "?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07",
+          url: "https://api.yummly.com/v1/api/recipe/" + recipeArr[i] + "?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07",
           // url: "http://api.yummly.com/v1/api/recipe/Sugared-pecans-_gifts-from-the-kitchen_-351475?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07",
 
           dataType : 'json',
