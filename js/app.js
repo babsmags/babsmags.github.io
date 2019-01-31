@@ -3,23 +3,8 @@
 */
 $(document).ready(function() {
 
-  // call functions for each api news source on page load so that default view has all articles
-  // mashableAjax();
-  // diggAjax();
-  // buzzfeedAjax();
-
-
-  //on click will clear any articles currently on page and pull results just for source selected in dropdown
-	// $("#newsSource li").click(function() {
- //      $(".loader").removeClass("hidden");     //shows loader
- //    	var newsSource = ($(this).find('a.value').text());  //get the value from dropdown
- //    	$('#sourceName').text(newsSource);   //replace news source dropdown title with selected source 
- //      $('title').html("Feedr: " + newsSource);  //replace page title with selected source name
- //      $('.contentsTitle').html(newsSource);  //replace text in box that shows contents of page
- //      $(".article").remove();  //remove any articles currently on page so next api group will load
-
+//action when kardashian picture is clicked
   $("img#kardash").click(function() {
-    console.log("kardashian clicked");
     $(".list-box").addClass("hidden");   //hide any current results from previous clicks
     $(".article").remove();  //remove any articles currently on page so fresh list will load
     $(".loader").removeClass("hidden");  //shows loader
@@ -27,31 +12,28 @@ $(document).ready(function() {
     $("#article-list").removeClass("hidden");   //show articles on page
 	});
 
+//action when twitter is clicked
   $("img#jesstweet").click(function() {
-    console.log("twitter clicked");
     $(".list-box").addClass("hidden");    //hide any current results from previous clicks
     $(".article").remove();  //remove tweet list currently on page so fresh list will load
     $(".loader").removeClass("hidden");   //shows loader
     twitterEmbed();
     $("#twitter-list").removeClass("hidden");   //show twitter feed on page
   });
-
-  $("img#dessert").click(function() {
-    console.log("cupcake clicked");
+//action when dessert recipes is clicked
+  $("img#yummly").click(function() {
     $(".list-box").addClass("hidden");    //hide any current results from previous clicks
-    $(".article").remove();  //remove tweet list currently on page so fresh list will load
+    // $(".item").remove();  //remove recipe list currently on page so fresh list will load
     $(".loader").removeClass("hidden");   //shows loader
-    dessertAjax();
-    $("#recipe-list").removeClass("hidden");   //show twitter feed on page
+    yummlyAjax();
+    $("#myCarousel").removeClass("hidden");   //show yummly carousel on page
   });
-
-
 });
 
 //functions below
 
+//buildHtml will build the html for the Kardashian articles. If no articles present, will place error message on page using function buildHtmlNone
 function buildHtml() {
-  console.log("now in buildHtml");
   $("<article>", {class: "article"}).append(
     $("<section>", {class:"impressions"}).append("News Source"),
     $("<section>", {class:"featuredImage"}).append(
@@ -70,7 +52,6 @@ function buildHtml() {
 }
 
 function buildHtmlNone() {
-  console.log("now in buildHtmlNone");
   $("<article>", {class: "article"}).append(
     $("<section>", {class:"impressions"}).append(""),
     $("<section>", {class:"featuredImage"}).append(
@@ -86,15 +67,31 @@ function buildHtmlNone() {
   $(".loader").addClass("hidden");
 }
 
+//dynamically build the html for the inner part of the carousel (image, link and caption)
+function buildCarouselHtml() {
+    $("<div>", {class: "item"}).append(
+      $("<a href =" + link + ">").append(
+        $("<img src =" + image + " alt = ''>")
+      ),
+      $("<div>", {class:"carousel-caption"}).append(
+        $("<h3>").text(title),           
+        $("<h6>").text(attribution)
+      )
+    )
+  .appendTo(".carousel-inner");
+  $(".carousel-inner .item:first").addClass("active");
+  $(".loader").addClass("hidden");
+}
+
+//function to do embed call to twitter, filter on tweets by Jessi Magallon, then build html dynamically
 function twitterEmbed() {
-  console.log("Twitter clicked");
   //following converts html from Twitter embed into jquery to build on the fly so not hardcoded into html
   $("<a class=twitter-timeline href=https://twitter.com/jessimagallon?ref_src=twsrc%5Etfw>").append("Tweets by jessimagallon").append(
   $("<script async src=https://platform.twitter.com/widgets.js charset=utf-8>")
   ).appendTo("#twitter-list");
 }
 
-
+//function to do ajax call to news api, filter on articles containing "Kardashian", then build html dynamically
 function kardashAjax() {
   $.ajax({
     type: "GET",
@@ -104,12 +101,10 @@ function kardashAjax() {
     dataType : 'json',
     success: function(result) {
       if(result.articles.length===0) {
-        console.log("No Kardashian articles to view")
         buildHtmlNone();
       } 
       else {
         for (var i = 0; i < result.articles.length; i++) {
-          console.log(result.articles);
           image = result.articles[i].urlToImage;   
           title = result.articles[i].title;      
           link = result.articles[i].url;     
@@ -125,10 +120,46 @@ function kardashAjax() {
   });
 }
 
-function dessertAjax() {
-unirest.get("https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/random?number=4&tags=dessert")
-.header("X-RapidAPI-Key", "b3822ba832msh4622b9be2937f4cp1d9e04jsnb1abab5c8fcd")
-.end(function (result) {
-  console.log(result.status, result.headers, result.body);
-});
+//function to do ajax call to yummly food site, and pull article ids from summary list of the first 4 dessert recipes found
+//Put these 4 article ids into an array which will be used on subsequent api calls to each recipe for details (image, recipe name, caption)
+function yummlyAjax() {
+  $.ajax({
+    type: "GET",
+    url: "http://api.yummly.com/v1/api/recipes?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07&allowedCourse[]=course^course-Desserts",
+    // url: "http://api.yummly.com/v1/api/recipe/2-Ingredient-Weight-Watchers-Pancakes-Zero-Points-Freestyle-2645921?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07",
+    // url: "http://api.yummly.com/v1/api/recipe/Sugared-pecans-_gifts-from-the-kitchen_-351475?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07",
+
+    dataType : 'json',
+    success: function(result) {
+      var recipeArr = [];
+      for (var i = 0; i < 3; i++) {
+        recipeArr.push(result.matches[i].id); 
+      }
+      //loop through above recipe results and get values from individual recipes
+      for (var i = 0; i < recipeArr.length; i++) {
+        $.ajax({
+          type: "GET",
+          url: "http://api.yummly.com/v1/api/recipe/" + recipeArr[i] + "?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07",
+          // url: "http://api.yummly.com/v1/api/recipe/Sugared-pecans-_gifts-from-the-kitchen_-351475?_app_id=583a917b&_app_key=38f0cfab8f3b93443df300dc6ee62a07",
+
+          dataType : 'json',
+          success: function(result) {
+            image = result.images[0].hostedLargeUrl;   
+            title = result.name;      
+            link = result.attribution.url;     
+            attribution = "information powered by Yummly";   
+            buildCarouselHtml();
+            },
+          error: function(XMLHttpRequest, textStatus, errorThrown) { 
+            alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+            location.reload(true);
+            }  
+        });
+      }
+      },
+    error: function(XMLHttpRequest, textStatus, errorThrown) { 
+      alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+      location.reload(true);
+      }  
+  });
 }
